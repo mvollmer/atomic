@@ -2,7 +2,7 @@ import errno
 import shutil
 import selinux
 import requests
-import os, sys
+import os, sys, re
 
 from . import util
 from .Export import export_docker
@@ -18,6 +18,30 @@ try:
     from . import Atomic
 except ImportError:
     from atomic import Atomic
+
+def modify_sh_var_in_text(text, var, modifier, default=""):
+    pattern = '^[ \t]*%s[ \t]*=[ \t]*"(.*)"[ \t]*$' % re.escape(var)
+    found = [ False ]
+    def sub(match):
+        found[0] = True
+        return var + '="' + modifier(match.group(1)) + '"'
+    new_text = re.sub(pattern, sub, text, flags=re.MULTILINE)
+    if found[0]:
+        return new_text
+    else:
+        return text + '\n' + var + '="' + modifier(default) + '"\n'
+
+def modify_sh_var_in_file(path, var, modifier, default=""):
+    if os.path.exists(path):
+        with open(path, "r") as f:
+            text = f.read()
+    else:
+        text = ""
+    with open(path, "w") as f:
+        f.write(modify_sh_var_in_text(text, var, modifier, default))
+
+def sh_set_add(a, b):
+    return " ".join(list(set(a.split()) | set(b)))
 
 class Storage(Atomic):
     def reset(self):
@@ -36,6 +60,26 @@ class Storage(Atomic):
             selinux.restorecon(root.encode("utf-8"))
         except:
             selinux.restorecon(root)
+
+    def add(self):
+        dss_conf = "/etc/sysconfig/docker-storage-setup"
+        dss_conf_bak = "/etc/sysconfig/docker-storage-setup" + ".bkp"
+
+        if os.path.exists(dss_conf):
+            shutil.copyfile(dss_conf, dss_conf_bak)
+        elif os.path.exists(dss_conf_bak):
+            os.remove(dss_conf_bak)
+        modify_sh_var_in_file(dss_conf, "DEVS", lambda old: sh_set_add(old, self.args.device))
+        if util.call(["docker-storage-setup"]) != 0:
+            if os.path.exists(dss_conf_bak):
+                os.rename(dss_conf_bak, dss_conf)
+            else:
+                os.remove(dss_conf)
+            util.call(["docker-storage-setup"])
+            raise ValueError("Not all devices could be added")
+        else:
+            if os.path.exists(dss_conf_bak):
+                os.remove(dss_conf_bak)
 
     def Export(self):
         try:
