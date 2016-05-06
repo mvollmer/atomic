@@ -27,8 +27,8 @@ class Storage(Atomic):
             raise ValueError("Docker daemon must be stop before resetting storage")
         except requests.exceptions.ConnectionError as e:
             pass
-            
-        util.check_call(["docker-storage-setup", "reset"], stdout=DEVNULL)
+
+        util.check_call(["docker-storage-setup", "--reset"], stdout=DEVNULL)
         util.call(["umount", root + "/devicemapper"], stderr=DEVNULL)
         shutil.rmtree(root)
         os.mkdir(root)
@@ -49,4 +49,3 @@ class Storage(Atomic):
             import_docker(self.args.graph, self.args.import_location)
         except requests.exceptions.ConnectionError:
             raise NoDockerDaemon()
-
