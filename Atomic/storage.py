@@ -38,6 +38,22 @@ class Storage(Atomic):
         except:
             selinux.restorecon(root)
 
+    def add(self):
+        dss_conf = "/etc/sysconfig/docker-storage-setup"
+        dss_conf_bak = "/etc/sysconfig/docker-storage-setup" + ".bkp"
+
+        try:
+            shutil.copyfile(dss_conf, dss_conf_bak)
+            util.sh_modify_var_in_file(dss_conf, "DEVS",
+                                       lambda old: util.sh_set_add(old, self.args.device))
+            if util.call(["docker-storage-setup"]) != 0:
+                os.rename(dss_conf_bak, dss_conf)
+                util.call(["docker-storage-setup"])
+                raise ValueError("Not all devices could be added")
+        finally:
+            if os.path.exists(dss_conf_bak):
+                os.remove(dss_conf_bak)
+
     def Export(self):
         try:
             export_docker(self.args.graph, self.args.export_location, self.force)

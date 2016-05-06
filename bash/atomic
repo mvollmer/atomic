@@ -605,6 +605,7 @@ _atomic_storage() {
 		export
 		import
 		reset
+                add
 	)
 
 	local completions_func=_atomic_storage_${prev}

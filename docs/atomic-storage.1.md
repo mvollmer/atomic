@@ -19,28 +19,36 @@ and then import all their old data to the new system.
 **export**
 
 export command will export all the current images, volumes, and containers
-to the specified directory (/var/lib/atomic/migrate by default), in the /images, 
+to the specified directory (/var/lib/atomic/migrate by default), in the /images,
 /volumes, /containers subdirectories.
 
 **import**
 
-import command will import images, volumes, and containers from the specified 
+import command will import images, volumes, and containers from the specified
 directory (/var/lib/atomic/migrate by default) into the new atomic instance.
 
 **reset**
 	Remove all containers/images from your system
+
+**add DEVICE ...**
+
+Add the given block devices to the storage pool.  This can be done at
+any time, without having to stop any containers.
+
+The block devices must not be in use and must not have a partition
+table, filesystem, or some other signature on them.
 
 # export OPTIONS
 **-h** **--help**
   Print usage statement
 
 **--graph**
-Root of the docker runtime. If you are running docker at the default 
-location (/var/lib/docker), you don't need to pass this flag. However 
+Root of the docker runtime. If you are running docker at the default
+location (/var/lib/docker), you don't need to pass this flag. However
 if you are running docker at a custom location. This flag must be set.
 
 **--dir**
-Directory in which to temporarily store the files (can be an existing 
+Directory in which to temporarily store the files (can be an existing
 directory, or the command will create one). If no directory is specified,
 /var/lib/atomic/migrate would be used as default.
 
@@ -57,9 +65,9 @@ location (/var/lib/docker), you don't need to pass this flag. However
 if you are running docker at a custom location. This flag must be set.
 
 **--dir**
-Directory from which to import the files (images, containers and volumes). 
-If this flag is not set atomic storage will assume the import location to 
-be /var/lib/atomic/migrate. Whether you set this flag or use the default, 
+Directory from which to import the files (images, containers and volumes).
+If this flag is not set atomic storage will assume the import location to
+be /var/lib/atomic/migrate. Whether you set this flag or use the default,
 the directory must be present for the import to happen successfully.
 
 # HISTORY

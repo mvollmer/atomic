@@ -494,6 +494,13 @@ def create_parser(atomic):
     importp.add_argument("--dir", dest="import_location",
                          default="/var/lib/atomic/migrate",
                          help=_("Path for importing container's content (Default: /var/lib/atomic/migrate)"))
+
+    # atomic storage add
+    addp = storage_subparser.add_parser("add",
+                                        help=_("add block devices to storage pool"))
+    addp.add_argument('device', nargs='+', help='The block devices to add')
+    addp.set_defaults(_class=Storage, func='add')
+
     # atomic storage reset
     resetp = storage_subparser.add_parser("reset",
                                           help=_("delete all containers/images from your system. Reset storage to its initial configuration."))
