@@ -43,6 +43,26 @@ def modify_sh_var_in_file(path, var, modifier, default=""):
 def sh_set_add(a, b):
     return " ".join(list(set(a.split()) | set(b)))
 
+def sh_set_del(a, b):
+    return " ".join(list(set(a.split()) - set(b)))
+
+def list_pvs(vgroup):
+    res = [ ]
+    for l in util.check_output([ "pvs", "--noheadings", "-o",  "vg_name,pv_name" ]).splitlines():
+        fields = l.split()
+        if len(fields) == 2 and fields[0] == vgroup:
+            res.append(fields[1])
+    return res
+
+def query_pvs(pv, fields):
+    return util.check_output([ "pvs", "--noheadings", "-o",  fields, "--unit", "b", pv ]).split()
+
+def list_parents(dev):
+    return util.check_output([ "lsblk", "-snlp", "-o", "NAME", dev ]).splitlines()[1:]
+
+def list_children(dev):
+    return util.check_output([ "lsblk", "-nlp", "-o", "NAME", dev ]).splitlines()[1:]
+
 class Storage(Atomic):
     def reset(self):
         root = "/var/lib/docker"
@@ -60,6 +80,20 @@ class Storage(Atomic):
             selinux.restorecon(root.encode("utf-8"))
         except:
             selinux.restorecon(root)
+
+    def reduce(self):
+        vgroup = util.check_output(["docker-storage-setup", "--show-vgroup"]).strip()
+        dss_conf = "/etc/sysconfig/docker-storage-setup"
+        for pv in list_pvs(vgroup):
+            if query_pvs(pv, "pv_used")[0][:-1] == '0':
+                util.check_call([ "vgreduce", vgroup, pv ])
+                util.check_call([ "wipefs", "-a", pv ])
+                parents = list_parents(pv)
+                modify_sh_var_in_file(dss_conf, "DEVS", lambda old: sh_set_del(old, parents))
+                if len(parents) == 1:
+                    children = list_children(parents[0])
+                    if len(children) == 1 and children[0] == pv:
+                        util.check_call([ "wipefs", "-a", parents[0] ])
 
     def add(self):
         dss_conf = "/etc/sysconfig/docker-storage-setup"
