@@ -506,6 +506,10 @@ def create_parser(atomic):
                                           help=_("delete all containers/images from your system. Reset storage to its initial configuration."))
     resetp.set_defaults(_class=Storage, func='reset')
 
+    # atomic storage reduce
+    reducep = storage_subparser.add_parser("reduce",
+                                           help=_("Reduce storage pool to minimal size."))
+    reducep.set_defaults(_class=Storage, func='reduce')
 
     # atomic top
     topp = subparser.add_parser(

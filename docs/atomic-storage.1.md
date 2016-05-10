@@ -38,6 +38,15 @@ any time, without having to stop any containers.
 The block devices must not be in use and must not have a partition
 table, filesystem, or some other signature on them.
 
+**reduce**
+
+Remove all unused block devices from the storage pool so that they can
+be used for some other purpose.
+
+You can run *reduce* at any time, but it is especially useful right
+after *atomic storage reset*, since most devices that have previously
+been added to the pool should be unused again at that point.
+
 # export OPTIONS
 **-h** **--help**
   Print usage statement
