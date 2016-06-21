@@ -1,4 +1,5 @@
 import os
+import uuid
 from . import util
 
 try:
@@ -15,6 +16,9 @@ except ImportError:
 class Run(Atomic):
     def run(self):
         self.inspect = self._inspect_container()
+
+        if not self.args.name:
+            self.name = str(uuid.uuid4())
 
         if self.inspect:
             self._check_latest()
