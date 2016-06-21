@@ -125,6 +125,7 @@ class Atomic(object):
                 "-e", "HOST=/host",
                 "-e", "NAME=${NAME}",
                 "-e", "IMAGE=${IMAGE}",
+                "--name", "${NAME}",
                 "${IMAGE}"]
 
     RUN_ARGS = ["run",
