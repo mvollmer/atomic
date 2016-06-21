@@ -115,7 +115,6 @@ class Atomic(object):
     SPC_ARGS = ["run",
                 "-t",
                 "-i",
-                "--rm",
                 "--privileged",
                 "-v", "/:/host",
                 "-v", "/run:/run",
