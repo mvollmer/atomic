@@ -458,6 +458,8 @@ def create_parser(atomic):
     runp.add_argument("--spc", default=False, action="store_true",
                       help=_("use super privileged container mode: '%s'" %
                              atomic.print_spc()))
+    runp.add_argument("--remain", action="store_true",
+                      help=_("don't remove the container when it's done"))
     runp.add_argument("image", help=_("container image"))
     runp.add_argument("command", nargs=argparse.REMAINDER,
                       help=_("command to execute within the container. "

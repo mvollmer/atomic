@@ -51,6 +51,13 @@ class Run(Atomic):
         if len(args) > 0 and args[0] == "docker":
             args[0] = self.docker_binary()
 
+        if not self.args.remain:
+            # Splice a "--rm" option into the command line
+            if args[0] == self.docker_binary():
+                run_index = args.index("run")
+                if run_index:
+                    args.insert(run_index + 1, "--rm")
+
         cmd = self.gen_cmd(args)
         cmd = self.sub_env_strings(cmd)
         self.display(cmd)
