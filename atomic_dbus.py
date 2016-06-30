@@ -32,7 +32,14 @@ class atomic_dbus(slip.dbus.service.Object):
             self.names_only = False
             self.rpms = False
             self.verbose = False
-            self.tty = True
+            self.scan_targets = []
+            self.scanner = None
+            self.scan_type = None
+            self.list = False
+            self.rootfs = []
+            self.all = False
+            self.images = False
+            self.containers = False
 
     def __init__(self, *p, **k):
 	super(atomic_dbus, self).__init__(*p, **k)
@@ -154,6 +161,28 @@ class atomic_dbus(slip.dbus.service.Object):
         args = self.Args()
         scan_list.set_args(args)
         return scan_list.get_scanners_list()
+
+    """
+    The get_scan_list method will return a list of all scanners.
+    """
+    @slip.dbus.polkit.require_auth("org.atomic.read")
+    @dbus.service.method("org.atomic", in_signature='asssasbbb',
+                         out_signature= 's')
+    def scan(self, scan_targets, scanner, scan_type, rootfs, _all, images, containers):
+        scan = Scan()
+        scan.notTty = True
+        args = self.Args()
+        args.scan_targets = scan_targets
+        if scanner:
+            args.scanner = scanner
+        if scan_type:
+            args.scan_type = scan_type
+        args.rootfs = rootfs
+        args.all = _all
+        args.images = images
+        args.containers = containers
+        scan.set_args(args)
+        return scan.scan()
 
 if __name__ == "__main__":
         mainloop = GLib.MainLoop()

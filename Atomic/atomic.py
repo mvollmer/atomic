@@ -151,6 +151,7 @@ class Atomic(object):
         self.docker_cmd = None
         self.debug = False
         self.is_python2 = (int(sys.version[0])) < 3
+        self.notTty = False
 
     def docker_binary(self):
         if not self.docker_cmd:

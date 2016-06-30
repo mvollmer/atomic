@@ -48,6 +48,11 @@ class AtomicDBus (object):
         ret = self.dbus_object.scan_list(dbus_interface="org.atomic")
         return ret
 
+    @polkit.enable_proxy
+    def scan(self, scan_targets, scanner, scan_type, rootfs, _all, images, containers):
+        ret = self.dbus_object.scan(scan_targets, scanner, scan_type, rootfs, _all, images, containers, dbus_interface="org.atomic")
+        return ret
+
 #For outputting the list of scanners
 def print_scan_list(all_scanners):
     if len(all_scanners) == 0:
@@ -109,8 +114,20 @@ if __name__ == "__main__":
             print resp
 
         elif(sys.argv[1] == "scan"):
-            if(sys.argv[2] == "list"):
+            if("--list" in sys.argv):
                 all_scanners = json.loads(dbus_proxy.scan_list())
                 print_scan_list(all_scanners)
+
+            elif("--all" in sys.argv):
+                print json.loads(dbus_proxy.scan([], '', '', [], True, False, False))
+
+            elif("--images" in sys.argv):
+                print json.loads(dbus_proxy.scan([], '', '', [], False, True, False))
+
+            elif("--containers" in sys.argv):
+                print json.loads(dbus_proxy.scan([], '', '', [], False, False, True))
+
+            else:
+                print json.loads(dbus_proxy.scan(['registry.access.redhat.com/rhel7'], '', '', [], False, False, False))
     except dbus.DBusException as e:
         print (e)
