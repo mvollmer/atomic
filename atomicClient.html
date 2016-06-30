@@ -24,23 +24,15 @@
     </div>
 
     <script>
-        var input = $("#new");
-        var current = $("#current");
-        var failure = $("#failure");
-
-        var service = cockpit.dbus("org.atomic");
-        var dbusProxy = service.proxy("org/atomic/object");
-        var call = dbusProxy.version("docker.io/fedora", dbus_interface = "org.atomic");
-        console.log(call)
-
-        function getVersion() {
-            call.fail(change_fail);
-            failure.empty();
-        }
-
-        function change_fail(err) {
-            failure.text(err.message);
-        }
+            var service = cockpit.dbus("org.atomic");
+            var proxy = service.proxy("org.atomic", "/org/atomic/object");
+            var call = proxy.call("Version", [ [ "docker.io/fedora" ], false ]);
+            call.done(function(result) {
+                console.log(JSON.stringify(result));
+            });
+            call.fail(function(error) {
+                console.warn(error);
+            });
 
     </script>
 </body>

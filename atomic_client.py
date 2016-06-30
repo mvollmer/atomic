@@ -14,43 +14,43 @@ class AtomicDBus (object):
 
     @polkit.enable_proxy
     def version(self, image, recurse):
-        ret = self.dbus_object.version(image, recurse, dbus_interface="org.atomic")
+        ret = self.dbus_object.Version(image, recurse, dbus_interface="org.atomic")
         return ret
 
     @polkit.enable_proxy
     def verify(self, image):
-        ret = self.dbus_object.verify(image, dbus_interface="org.atomic")
+        ret = self.dbus_object.Verify(image, dbus_interface="org.atomic")
         return ret
 
     @polkit.enable_proxy
     def storage_reset(self):
-        self.dbus_object.storage_reset(dbus_interface="org.atomic")
+        self.dbus_object.StorageReset(dbus_interface="org.atomic")
 
     @polkit.enable_proxy
     def storage_import(self, graph, import_location):
-        self.dbus_object.storage_import(graph, import_location, dbus_interface="org.atomic")
+        self.dbus_object.StorageImport(graph, import_location, dbus_interface="org.atomic")
 
     @polkit.enable_proxy
     def storage_export(self, graph, export_location, force):
-        self.dbus_object.storage_export(graph, export_location, force, dbus_interface="org.atomic")
+        self.dbus_object.StorageExport(graph, export_location, force, dbus_interface="org.atomic")
 
     @polkit.enable_proxy
     def storage_modify(self, devices, driver):
-        self.dbus_object.storage_import(devices, driver, dbus_interface="org.atomic")
+        self.dbus_object.StorageModify(devices, driver, dbus_interface="org.atomic")
 
     @polkit.enable_proxy
     def diff(self, first, second):
-        ret = self.dbus_object.diff(first, second, dbus_interface="org.atomic")
+        ret = self.dbus_object.Diff(first, second, dbus_interface="org.atomic")
         return ret
 
     @polkit.enable_proxy
     def scan_list(self):
-        ret = self.dbus_object.scan_list(dbus_interface="org.atomic")
+        ret = self.dbus_object.ScanList(dbus_interface="org.atomic")
         return ret
 
     @polkit.enable_proxy
     def scan(self, scan_targets, scanner, scan_type, rootfs, _all, images, containers):
-        ret = self.dbus_object.scan(scan_targets, scanner, scan_type, rootfs, _all, images, containers, dbus_interface="org.atomic")
+        ret = self.dbus_object.Scan(scan_targets, scanner, scan_type, rootfs, _all, images, containers, dbus_interface="org.atomic")
         return ret
 
 #For outputting the list of scanners
@@ -82,31 +82,31 @@ if __name__ == "__main__":
         dbus_proxy = AtomicDBus()
         if(sys.argv[1] == "version"):
             if sys.argv[2] == "-r":
-                resp = dbus_proxy.version(sys.argv[3:], True)
+                resp = dbus_proxy.Version(sys.argv[3:], True)
             else:
-                resp = dbus_proxy.version(sys.argv[2:], False)
+                resp = dbus_proxy.Version(sys.argv[2:], False)
 
             for r in resp:
                 for v in r["Version"]:
                     print(str(v["Id"]), str(v["Version"]), str(v["Tag"]))
 
         elif(sys.argv[1] == "verify"):
-            resp = dbus_proxy.verify(sys.argv[2:])
+            resp = dbus_proxy.Verify(sys.argv[2:])
             for r in resp:
                 print r
 
         elif(sys.argv[1] == "storage"):
             #handles atomic storage export
             if(sys.argv[2] == "export"):
-                dbus_proxy.storage_export("/var/lib/Docker", "/var/lib/atomic/migrate", False)
+                dbus_proxy.StorageExport("/var/lib/Docker", "/var/lib/atomic/migrate", False)
 
             #handles atomic storage import
             elif(sys.argv[2] == "import"):
-                dbus_proxy.storage_import("/var/lib/Docker", "/var/lib/atomic/migrate")
+                dbus_proxy.StorageImport("/var/lib/Docker", "/var/lib/atomic/migrate")
 
             #handles atomic storage reset
             elif(sys.argv[2] == "reset"):
-                dbus_proxy.storage_reset()
+                dbus_proxy.StorageReset()
 
         elif(sys.argv[1] == "diff"):
             #case where rpms flag is passed in
@@ -115,19 +115,19 @@ if __name__ == "__main__":
 
         elif(sys.argv[1] == "scan"):
             if("--list" in sys.argv):
-                all_scanners = json.loads(dbus_proxy.scan_list())
+                all_scanners = json.loads(dbus_proxy.ScanList())
                 print_scan_list(all_scanners)
 
             elif("--all" in sys.argv):
-                print json.loads(dbus_proxy.scan([], '', '', [], True, False, False))
+                print json.loads(dbus_proxy.Scan([], '', '', [], True, False, False))
 
             elif("--images" in sys.argv):
-                print json.loads(dbus_proxy.scan([], '', '', [], False, True, False))
+                print json.loads(dbus_proxy.Scan([], '', '', [], False, True, False))
 
             elif("--containers" in sys.argv):
-                print json.loads(dbus_proxy.scan([], '', '', [], False, False, True))
+                print json.loads(dbus_proxy.Scan([], '', '', [], False, False, True))
 
             else:
-                print json.loads(dbus_proxy.scan(['registry.access.redhat.com/rhel7'], '', '', [], False, False, False))
+                print json.loads(dbus_proxy.Scan(['registry.access.redhat.com/rhel7'], '', '', [], False, False, False))
     except dbus.DBusException as e:
         print (e)

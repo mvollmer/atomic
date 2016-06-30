@@ -52,7 +52,8 @@ class atomic_dbus(slip.dbus.service.Object):
     @slip.dbus.polkit.require_auth("org.atomic.read")
     @dbus.service.method("org.atomic", in_signature='asb',
                          out_signature='aa{sv}')
-    def version(self, images, recurse=False):
+    def Version(self, images, recurse=False):
+        print "hello"
         versions = []
         for image in images:
             args = self.Args()
@@ -69,7 +70,7 @@ class atomic_dbus(slip.dbus.service.Object):
     """
     @slip.dbus.polkit.require_auth("org.atomic.read")
     @dbus.service.method("org.atomic", in_signature='as', out_signature='av')
-    def verify(self, images):
+    def Verify(self, images):
         verifications = []
         verify = Verify()
         for image in images:
@@ -85,7 +86,7 @@ class atomic_dbus(slip.dbus.service.Object):
         """
     @slip.dbus.polkit.require_auth("org.atomic.read")
     @dbus.service.method("org.atomic", in_signature='', out_signature='')
-    def storage_reset(self):
+    def StorageReset(self):
         storage = Storage()
         # No arguments are passed for storage_reset function
         args = self.Args()
@@ -97,7 +98,7 @@ class atomic_dbus(slip.dbus.service.Object):
     """
     @slip.dbus.polkit.require_auth("org.atomic.read")
     @dbus.service.method("org.atomic", in_signature='ss', out_signature='')
-    def storage_import(self, graph="/var/lib/docker", import_location="/var/lib/atomic/migrate"):
+    def StorageImport(self, graph="/var/lib/docker", import_location="/var/lib/atomic/migrate"):
         storage = Storage()
         args = self.Args()
         args.graph = graph
@@ -110,7 +111,7 @@ class atomic_dbus(slip.dbus.service.Object):
     """
     @slip.dbus.polkit.require_auth("org.atomic.read")
     @dbus.service.method("org.atomic", in_signature='ssb', out_signature='')
-    def storage_export(self, graph="/var/lib/docker", export_location="/var/lib/atomic/migrate", force = False):
+    def StorageExport(self, graph="/var/lib/docker", export_location="/var/lib/atomic/migrate", force = False):
         storage = Storage()
         args = self.Args()
         args.graph = graph
@@ -124,7 +125,7 @@ class atomic_dbus(slip.dbus.service.Object):
     """
     @slip.dbus.polkit.require_auth("org.atomic.read")
     @dbus.service.method("org.atomic", in_signature='asv', out_signature='')
-    def storage_modify(self, devices=[], driver = None):
+    def StorageModify(self, devices=[], driver = None):
         storage = Storage()
         args = self.Args()
         args.devices = devices
@@ -138,7 +139,7 @@ class atomic_dbus(slip.dbus.service.Object):
     @slip.dbus.polkit.require_auth("org.atomic.read")
     @dbus.service.method("org.atomic", in_signature='ss',
                          out_signature='s')
-    def diff(self, first, second):
+    def Diff(self, first, second):
         diff = Diff()
         args = self.Args()
         args.compares = [first, second]
@@ -156,7 +157,7 @@ class atomic_dbus(slip.dbus.service.Object):
     @slip.dbus.polkit.require_auth("org.atomic.read")
     @dbus.service.method("org.atomic", in_signature='',
                          out_signature= 's')
-    def scan_list(self):
+    def ScanList(self):
         scan_list = Scan()
         args = self.Args()
         scan_list.set_args(args)
@@ -168,7 +169,7 @@ class atomic_dbus(slip.dbus.service.Object):
     @slip.dbus.polkit.require_auth("org.atomic.read")
     @dbus.service.method("org.atomic", in_signature='asssasbbb',
                          out_signature= 's')
-    def scan(self, scan_targets, scanner, scan_type, rootfs, _all, images, containers):
+    def Scan(self, scan_targets, scanner, scan_type, rootfs, _all, images, containers):
         scan = Scan()
         scan.notTty = True
         args = self.Args()
