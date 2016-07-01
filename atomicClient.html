@@ -26,12 +26,14 @@
     <script>
             var service = cockpit.dbus("org.atomic");
             var proxy = service.proxy("org.atomic", "/org/atomic/object");
-            var call = proxy.call("Version", [ [ "docker.io/fedora" ], false ]);
-            call.done(function(result) {
-                console.log(JSON.stringify(result));
-            });
-            call.fail(function(error) {
-                console.warn(error);
+            proxy.wait(function () {
+                var call = proxy.Version([ "docker.io/fedora" ], false);
+                call.done(function(result) {
+                    console.log(JSON.stringify(result));
+                });
+                call.fail(function(error) {
+                    console.warn(error);
+                });
             });
 
     </script>
