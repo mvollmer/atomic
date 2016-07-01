@@ -14,27 +14,211 @@
             </tr>
             <tr>
                 <td><label class="control-label" for="new">Feature</label></td>
-                <td><input class="form-control" id="new" value="UTC"></td>
+                <td><input class="form-control" id="new" value=""></td>
             </tr>
             <tr>
-                <td><button class="btn btn-default btn-primary" id="change">Change</button></td>
+                <td><button class="btn btn-default btn-primary" id="Run">Run</button></td>
 		<td><span id="failure"></span></td>
             </tr>
         </table>
     </div>
 
     <script>
+            var input = $("#new");
             var service = cockpit.dbus("org.atomic");
             var proxy = service.proxy("org.atomic", "/org/atomic/object");
-            proxy.wait(function () {
-                var call = proxy.Version([ "docker.io/fedora" ], false);
-                call.done(function(result) {
-                    console.log(JSON.stringify(result));
+            $("#Run").on("click", RunCommand);
+
+            function RunVersion(command)
+            {
+              proxy.wait(function ()
+              {
+                var call;
+                if(command[2] == "-r")
+                {
+                  call = proxy.Version([command[1]], true);
+                }
+                else
+                {
+                  call = proxy.Version([command[1]], false);
+                }
+                call.done(function(result)
+                {
+                  console.log(JSON.stringify(result));
                 });
-                call.fail(function(error) {
-                    console.warn(error);
+
+                call.fail(function(error)
+                {
+                  console.warn(error);
                 });
-            });
+
+              });
+            }
+
+            function RunScanList()
+            {
+              proxy.wait(function ()
+              {
+                var call = proxy.ScanList();
+                call.done(function(result)
+                {
+                  console.log(JSON.stringify(result));
+                });
+
+                call.fail(function(error)
+                {
+                  console.warn(error);
+                });
+
+              });
+            }
+
+            function RunStorageReset()
+            {
+              proxy.wait(function ()
+              {
+                var call = proxy.StorageReset();
+                call.done(function()
+                {
+                  console.log("Success!");
+                });
+
+                call.fail(function(error)
+                {
+                  console.warn(error);
+                });
+
+              });
+            }
+
+            function RunStorageImport(command)
+            {
+              var graph = "/var/lib/docker";
+              var import_location = "/var/lib/atomic/migrate";
+              if(command.indexOf("--graph") != -1)
+              {
+                graph = command[command.indexOf("--graph") + 1];
+              }
+
+              if (command.indexOf("--import_location") != -1)
+              {
+                import_location = command[command.indexOf("--inport_location") + 1];
+              }
+
+              proxy.wait(function ()
+              {
+                var call = proxy.StorageImport(graph, import_location);
+                call.done(function()
+                {
+                  console.log("Success!");
+                });
+
+                call.fail(function(error)
+                {
+                  console.warn(error);
+                });
+
+              });
+            }
+
+            function RunStorageExport(command)
+            {
+              var graph = "/var/lib/docker";
+              var import_location = "/var/lib/atomic/migrate";
+              var force = false;
+              if(command.indexOf("--graph") != -1)
+              {
+                graph = command[command.indexOf("--graph") + 1];
+                console.log(graph);
+              }
+
+              if (command.indexOf("--import_location") != -1)
+              {
+                import_location = command[command.indexOf("--inport_location") + 1];
+                console.log(import_location);
+              }
+
+              if(command.indexOf("--force") != -1)
+              {
+                force = true;
+              }
+
+              proxy.wait(function ()
+              {
+                var call = proxy.StorageExport(graph, import_location, force);
+                call.done(function()
+                {
+                  console.log("Success!");
+                });
+
+                call.fail(function(error)
+                {
+                  console.warn(error);
+                });
+
+              });
+            }
+
+            function Diff(command)
+            {
+              proxy.wait(function ()
+              {
+                var call = proxy.Diff(command[1], command[2]);
+                call.done(function(result)
+                {
+                  console.log(JSON.stringify(result));
+                });
+
+                call.fail(function(error)
+                {
+                  console.warn(error);
+                });
+
+              });
+            }
+
+            //Depending on what is entered, it will send the command to the appropriate function to be parsed.
+            function RunCommand()
+            {
+              var command = (input.val()).split(" ");
+              var call;
+              if(command[0].toLowerCase() == "version")
+              {
+                RunVersion(command);
+              }
+
+              else if(command[0].toLowerCase() == "scan")
+              {
+                if(command.indexOf("--list") != -1)
+                {
+                  RunScanList();
+                }
+              }
+
+              else if(command[0].toLowerCase() == "storage")
+              {
+                if(command.indexOf("--reset") != -1)
+                {
+                  RunStorageReset()
+                }
+
+                else if(command.indexOf("--import") != -1)
+                {
+                  RunStorageImport(command)
+                }
+
+                else if(command.indexOf("--export") != -1)
+                {
+                  RunStorageExport(command)
+                }
+
+              }
+
+              else if(command[0].toLowerCase() == "diff")
+              {
+                RunDiff(command)
+              }
+            }
 
     </script>
 </body>

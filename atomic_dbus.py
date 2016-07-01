@@ -53,7 +53,6 @@ class atomic_dbus(slip.dbus.service.Object):
     @dbus.service.method("org.atomic", in_signature='asb',
                          out_signature='aa{sv}')
     def Version(self, images, recurse=False):
-        print "hello"
         versions = []
         for image in images:
             args = self.Args()
@@ -98,7 +97,7 @@ class atomic_dbus(slip.dbus.service.Object):
     """
     @slip.dbus.polkit.require_auth("org.atomic.read")
     @dbus.service.method("org.atomic", in_signature='ss', out_signature='')
-    def StorageImport(self, graph="/var/lib/docker", import_location="/var/lib/atomic/migrate"):
+    def StorageImport(self, graph, import_location):
         storage = Storage()
         args = self.Args()
         args.graph = graph
