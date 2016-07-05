@@ -27,196 +27,142 @@
             var input = $("#new");
             var service = cockpit.dbus("org.atomic");
             var proxy = service.proxy("org.atomic", "/org/atomic/object");
-            $("#Run").on("click", RunCommand);
+            $("#Run").on("click", run_command);
 
-            function RunVersion(command)
-            {
-              proxy.wait(function ()
-              {
-                var call;
-                if(command[2] == "-r")
-                {
-                  call = proxy.Version([command[1]], true);
-                }
-                else
-                {
-                  call = proxy.Version([command[1]], false);
-                }
-                call.done(function(result)
-                {
-                  console.log(JSON.stringify(result));
-                });
+            function run_version(command) {
+              var call;
+              if(command[2] == "-r") {
+                call = proxy.Version([command[1]], true);
+              }
 
-                call.fail(function(error)
-                {
+              else {
+                call = proxy.Version([command[1]], false);
+              }
+
+              call.done(function(result) {
+                console.log(JSON.stringify(result));
+              });
+
+              call.fail(function(error) {
                   console.warn(error);
                 });
 
+              }
+
+            function run_scan_list() {
+              var call = proxy.ScanList();
+              call.done(function(result) {
+                console.log(JSON.stringify(result));
+              });
+
+              call.fail(function(error) {
+                console.warn(error);
+              });
+
+            }
+
+            function run_storage_reset() {
+              var call = proxy.StorageReset();
+              call.done(function() {
+                console.log("Success!");
+              });
+
+              call.fail(function(error) {
+                console.warn(error);
               });
             }
 
-            function RunScanList()
-            {
-              proxy.wait(function ()
-              {
-                var call = proxy.ScanList();
-                call.done(function(result)
-                {
-                  console.log(JSON.stringify(result));
-                });
-
-                call.fail(function(error)
-                {
-                  console.warn(error);
-                });
-
-              });
-            }
-
-            function RunStorageReset()
-            {
-              proxy.wait(function ()
-              {
-                var call = proxy.StorageReset();
-                call.done(function()
-                {
-                  console.log("Success!");
-                });
-
-                call.fail(function(error)
-                {
-                  console.warn(error);
-                });
-
-              });
-            }
-
-            function RunStorageImport(command)
-            {
+            function run_storage_import(command) {
               var graph = "/var/lib/docker";
               var import_location = "/var/lib/atomic/migrate";
-              if(command.indexOf("--graph") != -1)
-              {
+              if(command.indexOf("--graph") != -1) {
                 graph = command[command.indexOf("--graph") + 1];
               }
 
-              if (command.indexOf("--import_location") != -1)
-              {
+              if (command.indexOf("--import_location") != -1) {
                 import_location = command[command.indexOf("--inport_location") + 1];
               }
 
-              proxy.wait(function ()
-              {
-                var call = proxy.StorageImport(graph, import_location);
-                call.done(function()
-                {
+              var call = proxy.StorageImport(graph, import_location);
+              call.done(function() {
                   console.log("Success!");
                 });
 
-                call.fail(function(error)
-                {
+                call.fail(function(error) {
                   console.warn(error);
                 });
+              }
 
-              });
-            }
-
-            function RunStorageExport(command)
-            {
+            function run_storage_export(command) {
               var graph = "/var/lib/docker";
               var import_location = "/var/lib/atomic/migrate";
               var force = false;
-              if(command.indexOf("--graph") != -1)
-              {
+              if(command.indexOf("--graph") != -1) {
                 graph = command[command.indexOf("--graph") + 1];
                 console.log(graph);
               }
 
-              if (command.indexOf("--import_location") != -1)
-              {
+              if (command.indexOf("--import_location") != -1) {
                 import_location = command[command.indexOf("--inport_location") + 1];
                 console.log(import_location);
               }
 
-              if(command.indexOf("--force") != -1)
-              {
+              if(command.indexOf("--force") != -1) {
                 force = true;
               }
 
-              proxy.wait(function ()
-              {
-                var call = proxy.StorageExport(graph, import_location, force);
-                call.done(function()
-                {
-                  console.log("Success!");
-                });
+              var call = proxy.StorageExport(graph, import_location, force);
+              call.done(function() {
+                console.log("Success!");
+              });
 
-                call.fail(function(error)
-                {
-                  console.warn(error);
-                });
-
+              call.fail(function(error) {
+                console.warn(error);
               });
             }
 
-            function Diff(command)
-            {
-              proxy.wait(function ()
-              {
-                var call = proxy.Diff(command[1], command[2]);
-                call.done(function(result)
-                {
-                  console.log(JSON.stringify(result));
-                });
+            function run_diff(command) {
+              var call = proxy.Diff(command[1], command[2]);
+              call.done(function(result) {
+                console.log(JSON.stringify(result));
+              });
 
-                call.fail(function(error)
-                {
-                  console.warn(error);
-                });
-
+              call.fail(function(error) {
+                console.warn(error);
               });
             }
 
             //Depending on what is entered, it will send the command to the appropriate function to be parsed.
-            function RunCommand()
-            {
+            function run_command() {
               var command = (input.val()).split(" ");
               var call;
-              if(command[0].toLowerCase() == "version")
-              {
-                RunVersion(command);
+              if(command[0].toLowerCase() == "version") {
+                run_version(command);
               }
 
-              else if(command[0].toLowerCase() == "scan")
-              {
-                if(command.indexOf("--list") != -1)
-                {
-                  RunScanList();
+              else if(command[0].toLowerCase() == "scan") {
+                if(command.indexOf("--list") != -1) {
+                  run_scan_list();
                 }
               }
 
-              else if(command[0].toLowerCase() == "storage")
-              {
-                if(command.indexOf("--reset") != -1)
-                {
-                  RunStorageReset()
+              else if(command[0].toLowerCase() == "storage") {
+                if(command.indexOf("--reset") != -1) {
+                  run_storage_reset()
                 }
 
-                else if(command.indexOf("--import") != -1)
-                {
-                  RunStorageImport(command)
+                else if(command.indexOf("--import") != -1) {
+                  run_storage_import(command)
                 }
 
-                else if(command.indexOf("--export") != -1)
-                {
-                  RunStorageExport(command)
+                else if(command.indexOf("--export") != -1) {
+                  run_storage_export(command)
                 }
 
               }
 
-              else if(command[0].toLowerCase() == "diff")
-              {
-                RunDiff(command)
+              else if(command[0].toLowerCase() == "diff") {
+                run_diff(command)
               }
             }
 
