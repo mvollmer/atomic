@@ -5,8 +5,8 @@
     <script src="../base1/jquery.js"></script>
     <script src="../base1/cockpit.js"></script>
 </head>
-<body>
-    <div class="container-fluid" style='max-width: 400px'>
+<body hidden>
+    <div id="ui" class="container-fluid" style='max-width: 400px'>
         <table class="cockpit-form-table">
             <tr>
                 <td><label class="control-label">Atomic</label></td>
@@ -23,10 +23,23 @@
         </table>
     </div>
 
+    <div id="curtain" hidden>
+        Atomic D-Bus API not available.
+    </div>
+
     <script>
             var input = $("#new");
             var service = cockpit.dbus("org.atomic");
             var proxy = service.proxy("org.atomic", "/org/atomic/object");
+
+            proxy.wait(function () {
+                if (!proxy.valid) {
+                    $('#ui').hide();
+                    $('#curtain').show();
+                }
+                $('body').show();
+            });
+
             $("#Run").on("click", run_command);
 
             function run_version(command) {
